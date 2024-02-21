@@ -5,17 +5,14 @@ export async function rollback() {
   for (const { column, row } of appendOnlyLog.filter(
     ({ name }) => name === "create-polyanet",
   )) {
-    const url = new URL(
-      `${process.env.API_URL}/polyanet/${process.env.CANDIDATE_ID}`,
-    );
-    const params = new URLSearchParams();
-    params.append("column", column.toString());
-    params.append("row", row.toString());
-    url.search = params.toString();
-
     logger.warn(`Deleting Polyanet at ${column}:${row}`);
 
-    const response = await fetch(url, {
+    const response = await fetch(`${process.env.API_URL}/polyanets`, {
+      body: JSON.stringify({
+        candidateId: process.env.CANDIDATE_ID,
+        column,
+        row,
+      }),
       headers: {
         "Content-Type": "application/json",
       },

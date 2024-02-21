@@ -2,15 +2,12 @@ import { appendOnlyLog } from "../append-only-log";
 import { logger } from "../lib/logger";
 
 export async function polyanetPromiseFactory(column: number, row: number) {
-  const url = new URL(
-    `${process.env.API_URL}/polyanets/${process.env.CANDIDATE_ID}`,
-  );
-  const params = new URLSearchParams();
-  params.append("column", column.toString());
-  params.append("row", row.toString());
-  url.search = params.toString();
-
-  const response = await fetch(url, {
+  const response = await fetch(`${process.env.API_URL}/polyanets`, {
+    body: JSON.stringify({
+      candidateId: process.env.CANDIDATE_ID,
+      column,
+      row,
+    }),
     headers: {
       "Content-Type": "application/json",
     },
