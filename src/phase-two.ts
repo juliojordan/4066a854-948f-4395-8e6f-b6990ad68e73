@@ -2,10 +2,7 @@ import "dotenv/config";
 
 import { validateConfig } from "./lib/config";
 import { logger } from "./lib/logger";
-import {
-  getMegaversePhaseOne,
-  populateMegaversePhaseOne,
-} from "./services/megaverse";
+import { populateMegaversePhaseTwo } from "./services/megaverse";
 
 export async function main() {
   logger.info("Starting phase one");
@@ -13,11 +10,8 @@ export async function main() {
   logger.info("Validating configuration");
   validateConfig();
 
-  logger.info("Getting data from Megaverse");
-  const [data, width] = await getMegaversePhaseOne();
-
   logger.info("Populating Megaverse");
-  await populateMegaversePhaseOne(data, width);
+  await populateMegaversePhaseTwo();
 }
 
 let exitCode = 0;

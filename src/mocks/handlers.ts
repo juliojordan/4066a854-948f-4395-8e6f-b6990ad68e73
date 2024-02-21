@@ -1,5 +1,6 @@
 import { http, HttpResponse } from "msw";
-import { Megaverse, POLYANET, SPACE } from "../types";
+import { Megaverse } from "../types";
+import { POLYANET, SPACE } from "../constants";
 
 const megaverse: Megaverse = [
   [SPACE, SPACE],

@@ -1,11 +1,17 @@
 import { appendOnlyLog } from "../append-only-log";
+import { SPACE } from "../constants";
 import { logger } from "../lib/logger";
-import { map as mapJsonToSuperPerformanceDataStructure } from "../lib/map";
 import { rollback } from "../lib/rollback";
-import { validate } from "../lib/validate";
-import { polyanetPromiseFactory } from "./polyanet";
+import { wait } from "../lib/wait";
+import { MegaverseIterator } from "./megaverse.iterator";
+import { polyanetFactory } from "./megaverse.factory";
+import {
+  mapAstralObject,
+  mapMegaverse as mapJsonToSuperPerformanceDataStructure,
+} from "./megaverse.map";
+import { validatePhaseOne, validatePhaseTwo } from "./megaverse.validator";
 
-export async function getMegaverse(): Promise<[boolean[], number]> {
+export async function getMegaversePhaseOne(): Promise<[boolean[], number]> {
   const response = await fetch(
     `${process.env.API_URL}/map/${process.env.CANDIDATE_ID}/goal`,
   );
@@ -15,7 +21,7 @@ export async function getMegaverse(): Promise<[boolean[], number]> {
     response.headers.get("Content-Type")?.includes("application/json")
   ) {
     const map = await response.json();
-    validate(map);
+    validatePhaseOne(map);
 
     const { goal: megaverse } = map;
     return mapJsonToSuperPerformanceDataStructure(megaverse);
@@ -24,7 +30,10 @@ export async function getMegaverse(): Promise<[boolean[], number]> {
   }
 }
 
-export async function populateMegaverse(data: boolean[], width: number) {
+export async function populateMegaversePhaseOne(
+  data: boolean[],
+  width: number,
+) {
   const promises: Promise<void>[] = [];
   for (let index = 0; index < data.length; index++) {
     const isPolyanet = data[index];
@@ -33,9 +42,9 @@ export async function populateMegaverse(data: boolean[], width: number) {
       const column = index % width;
       const row = Math.floor(index / width);
 
-      logger.info(`Creating Polyanet at ${column}:${row}`);
+      logger.info(`Creating Polyanet at ${row}:${column}`);
 
-      promises.push(polyanetPromiseFactory(column, row));
+      promises.push(polyanetFactory(column, row));
     }
   }
   const result = await Promise.allSettled(promises);
@@ -48,5 +57,54 @@ export async function populateMegaverse(data: boolean[], width: number) {
       await rollback();
     }
     throw new Error("Metaverse creation failed");
+  }
+}
+
+export async function populateMegaversePhaseTwo() {
+  const response = await fetch(
+    `${process.env.API_URL}/map/${process.env.CANDIDATE_ID}/goal`,
+  );
+
+  if (
+    response.ok &&
+    response.headers.get("Content-Type")?.includes("application/json")
+  ) {
+    const map = await response.json();
+    validatePhaseTwo(map);
+
+    const { goal: megaverse } = map;
+
+    const megaverseIterator = new MegaverseIterator(megaverse);
+
+    for (const { column, name, row } of megaverseIterator) {
+      if (name && name !== SPACE) {
+        const { resource, ...rest } = mapAstralObject(name);
+
+        logger.info(`Creating ${resource} at ${row}:${column}`);
+
+        const response = await fetch(`${process.env.API_URL}/${resource}`, {
+          body: JSON.stringify({
+            candidateId: process.env.CANDIDATE_ID,
+            column,
+            row,
+            ...rest,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+        });
+        if (response.ok) {
+          appendOnlyLog.push({ column, name: `create-${resource}`, row });
+          // HACK To avoid backpreassure
+          await wait(1000);
+        } else {
+          logger.error(`${response.status} ${response.statusText}`);
+          throw new Error(`${resource} creation failed at ${column}:${row}`);
+        }
+      }
+    }
+  } else {
+    throw new Error(`${response.status} Metaverse Not Found`);
   }
 }

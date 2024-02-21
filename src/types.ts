@@ -1,4 +1,4 @@
-interface Base {
+export interface Base {
   column: number;
   row: number;
 }
@@ -13,15 +13,25 @@ export interface Soloons extends Base {
 
 export interface Polyanet extends Base {}
 
-export const COMETH = "COMETH";
-export const POLYANET = "POLYANET";
-export const SOLOONS = "SOLOONS";
-export const SPACE = "SPACE";
-
 export type AppendOnlyLogEntry = {
   column: number;
-  name: "create-cometh" | "create-polyanet" | "create-soloons";
+  name: "create-comeths" | "create-polyanets" | "create-soloons";
   row: number;
 };
 
-export type Megaverse = ("POLYANET" | "SPACE")[][];
+export type Megaverse = (
+  | "BLUE_SOLOON"
+  | "COMETH"
+  | "DOWN_COMETH"
+  | "LEFT_COMETH"
+  | "POLYANET"
+  | "PURPLE_SOLOON"
+  | "RED_SOLOON"
+  | "RIGHT_COMETH"
+  | "SOLOONS"
+  | "SPACE"
+  | "UP_COMETH"
+  | "WHITE_SOLOON"
+)[][];
+
+export type Resource = "comeths" | "polyanets" | "soloons";

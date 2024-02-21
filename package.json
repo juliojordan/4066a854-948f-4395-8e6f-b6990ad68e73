@@ -10,6 +10,7 @@
     "lint": "eslint --ignore-path .gitignore --fix .",
     "start": "npm run start:one && npm run start:two",
     "start:one": "node dist/phase-one.js",
+    "start:two": "node dist/phase-two.js",
     "test": "vitest"
   },
   "repository": {

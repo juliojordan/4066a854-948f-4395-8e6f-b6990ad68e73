@@ -22,4 +22,5 @@ Rule the Megaverse.
 
 ```zsh
 npm run start:one
+npm run start:two
 ```

@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
-import { Megaverse, POLYANET, SPACE } from "../types";
-import { validate } from "./validate";
+import { Megaverse } from "../types";
+import { validatePhaseOne } from "./megaverse.validator";
+import { POLYANET, SPACE } from "../constants";
 
 test("Happy path", function () {
   const input: { goal: Megaverse } = {
@@ -10,13 +11,13 @@ test("Happy path", function () {
     ],
   };
 
-  validate(input);
+  validatePhaseOne(input);
 });
 
 test("Throws an error", function () {
   const input = [
     [POLYANET, SPACE],
-    [SPACE, false],
+    [SPACE, "OOPS"],
   ];
 
   // @ts-expect-error No worries, we're testing the error

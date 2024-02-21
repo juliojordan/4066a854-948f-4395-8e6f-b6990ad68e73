@@ -3,7 +3,7 @@ import { logger } from "./logger";
 
 export async function rollback() {
   for (const { column, row } of appendOnlyLog.filter(
-    ({ name }) => name === "create-polyanet",
+    ({ name }) => name === "create-polyanets",
   )) {
     logger.warn(`Deleting Polyanet at ${column}:${row}`);
 
