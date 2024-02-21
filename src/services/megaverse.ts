@@ -96,7 +96,7 @@ export async function populateMegaversePhaseTwo() {
         });
         if (response.ok) {
           appendOnlyLog.push({ column, name: `create-${resource}`, row });
-          // HACK To avoid backpreassure
+          // HACK To avoid back pressure
           await wait(1000);
         } else {
           logger.error(`${response.status} ${response.statusText}`);
